@@ -19,7 +19,7 @@ formEl.addEventListener("submit", startSearch);
 let searchQuery = "";
 let page = 0;
 let hitsTotal = 0;
-let result = "";
+let result = null;
 
 function startSearch(e) {
     e.preventDefault();
