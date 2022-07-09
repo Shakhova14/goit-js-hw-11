@@ -1,6 +1,7 @@
 const axios = require('axios').default;
 import { Notify } from 'notiflix/build/notiflix-notify-aio';
 const debounce = require('lodash.debounce');
+const throttle = require('lodash.throttle');
 import SimpleLightbox from 'simplelightbox';
 import 'simplelightbox/dist/simple-lightbox.min.css';
 
@@ -16,11 +17,13 @@ formEl.addEventListener("submit", startSearch);
 
 
 let searchQuery = "";
-let page = 1;
-// let result = "";
+let page = 0;
+let hitsTotal = 0;
+let result = "";
 
 function startSearch(e) {
     e.preventDefault();
+    page = 1;
     inputEl.innerHTML = "";
 galleryContainer.innerHTML = "";
 searchQuery = e.currentTarget.elements.searchQuery.value.trim();
@@ -31,13 +34,14 @@ searchQuery = e.currentTarget.elements.searchQuery.value.trim();
 
 async function fetchSearch() {
 
-    const response = await fetch(`https://pixabay.com/api/?key=28514393-02e86ee05f4a6882389cbce9d&q=${searchQuery}&image_type=photo&orientation=horizontal&safesearch=true&per_page=40&page=${page}`);
-     result = await response.json();
-    console.log(result);   
+    const response = await axios.get(`https://pixabay.com/api/?key=28514393-02e86ee05f4a6882389cbce9d&q=${searchQuery}&image_type=photo&orientation=horizontal&safesearch=true&per_page=40&page=${page}`);
+     result = await response.data;
+    hitsTotal = result.totalHits;   
     if (result.hits.length >= 1) {
-        Notify.success('Норм, нашел пачку!');
+        Notify.success(`Норм, нашел пачку из ${hitsTotal} фоточек!`);
         pushMarkup();
-        page += 1;       
+        page += 1; 
+        
       
     }
     else  {
@@ -78,18 +82,17 @@ const markup = result.hits.map((el) => `<div class="gallery">
     captionDelay: 250,
     });
     gallery.refresh();
-
-     
-    
+   
 }
         
 
   function populate() {
    
       let windowRelativeBottom = document.documentElement.getBoundingClientRect().bottom;
-      if (windowRelativeBottom > document.documentElement.clientHeight + 100) return;
+      if (windowRelativeBottom > document.documentElement.clientHeight + 150) return;
       document.body.insertAdjacentHTML("beforeend", fetchSearch(searchQuery));
-    
+      
+    // document.body.insertAdjacentHTML("beforeend", throttle(fetchSearch(searchQuery), 50));
   }
 
 window.addEventListener('scroll', debounce(populate, 500));
