@@ -19,7 +19,7 @@ formEl.addEventListener("submit", startSearch);
 let searchQuery = "";
 let page = 0;
 let hitsTotal = 0;
-// let result = "";
+let result = "";
 
 function startSearch(e) {
     e.preventDefault();
@@ -35,7 +35,7 @@ searchQuery = e.currentTarget.elements.searchQuery.value.trim();
 async function fetchSearch() {
 
     const response = await axios.get(`https://pixabay.com/api/?key=28514393-02e86ee05f4a6882389cbce9d&q=${searchQuery}&image_type=photo&orientation=horizontal&safesearch=true&per_page=40&page=${page}`);
-    const result = await response.data;
+   result = await response.data;
     hitsTotal = result.totalHits;   
     if (result.hits.length >= 1) {
         Notify.success(`Норм, нашел пачку из ${hitsTotal} фоточек!`);
